@@ -99,7 +99,8 @@ final class ViewController: UIViewController {
     // MARK: - Server
 
     private func startServer() {
-        previewView.preferredPlayoutDelay = 0.6
+        previewView.preferredPlayoutDelay = 0.8
+        previewView.preferredMaxQueueDepth = 32
         previewView.onStats = { [weak self] stats in
             let text = String(
                 format: "In: %.1f fps  Render: %.1f fps  Drop: %.1f fps\nBitrate: %.0f kbps  Queue: %d  Delay: %d ms  %dx%d",

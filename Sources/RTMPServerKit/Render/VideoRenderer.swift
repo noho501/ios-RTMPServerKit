@@ -10,6 +10,7 @@ final class VideoRenderer {
     var onStats: ((RTMPRenderStats) -> Void)?
 
     private let playoutDelay: TimeInterval
+    private let maxPendingCount: Int
     private var baseSourcePTS: CMTime?
     private var baseHostTime: CFTimeInterval?
     private var pendingCount: Int = 0
@@ -21,8 +22,9 @@ final class VideoRenderer {
     private var currentWidth: Int32 = 0
     private var currentHeight: Int32 = 0
 
-    init(playoutDelay: TimeInterval = 0.6) {
+    init(playoutDelay: TimeInterval = 0.6, maxPendingCount: Int = 40) {
         self.playoutDelay = max(0, playoutDelay)
+        self.maxPendingCount = max(1, maxPendingCount)
         displayLayer = AVSampleBufferDisplayLayer()
         displayLayer.videoGravity = .resizeAspect
         displayLayer.controlTimebase = makeControlTimebase()
@@ -37,7 +39,7 @@ final class VideoRenderer {
             resetPlayoutClock()
         }
 
-        if pendingCount >= 180 {
+        if pendingCount >= maxPendingCount {
             droppedCount += 1
             emitStatsIfNeeded()
             return

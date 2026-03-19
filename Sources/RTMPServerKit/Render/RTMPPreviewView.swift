@@ -5,7 +5,8 @@ import CoreMedia
 /// A UIView that renders RTMP video using AVSampleBufferDisplayLayer.
 public final class RTMPPreviewView: UIView {
     private var renderer: VideoRenderer?
-    public var preferredPlayoutDelay: TimeInterval = 3.0
+    public var preferredPlayoutDelay: TimeInterval = 0.8
+    public var preferredMaxQueueDepth: Int = 40
     public var onStats: ((RTMPRenderStats) -> Void)?
 
     override init(frame: CGRect) {
@@ -24,7 +25,10 @@ public final class RTMPPreviewView: UIView {
 
     /// Attach to an RTMPServer and start rendering frames it produces.
     public func attach(server: RTMPServer) {
-        let r = VideoRenderer(playoutDelay: preferredPlayoutDelay)
+        let r = VideoRenderer(
+            playoutDelay: preferredPlayoutDelay,
+            maxPendingCount: preferredMaxQueueDepth
+        )
         self.renderer = r
         r.displayLayer.frame = bounds
         r.displayLayer.videoGravity = .resizeAspect
