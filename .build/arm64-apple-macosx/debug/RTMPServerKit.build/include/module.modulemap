@@ -1,0 +1,3 @@
+module RTMPServerKit {
+    header "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/include/RTMPServerKit-Swift.h"
+}

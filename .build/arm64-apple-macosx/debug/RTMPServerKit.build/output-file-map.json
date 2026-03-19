@@ -1,0 +1,138 @@
+{
+  "": {
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/master.swiftdeps"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Core/RTMPConnection.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPConnection.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPConnection.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPConnection~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPConnection.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPConnection.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Core/RTMPServer.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPServer.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPServer.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPServer~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPServer.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPServer.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Core/RTMPSessionState.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPSessionState.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPSessionState.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPSessionState~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPSessionState.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPSessionState.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Media/H264Parser.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/H264Parser.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/H264Parser.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/H264Parser~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/H264Parser.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/H264Parser.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Media/NALUAssembler.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/NALUAssembler.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/NALUAssembler.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/NALUAssembler~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/NALUAssembler.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/NALUAssembler.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Media/SPSPPSStore.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/SPSPPSStore.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/SPSPPSStore.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/SPSPPSStore~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/SPSPPSStore.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/SPSPPSStore.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Media/SampleBufferFactory.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/SampleBufferFactory.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/SampleBufferFactory.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/SampleBufferFactory~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/SampleBufferFactory.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/SampleBufferFactory.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Protocol/AMF0Decoder.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/AMF0Decoder.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/AMF0Decoder.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/AMF0Decoder~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/AMF0Decoder.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/AMF0Decoder.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Protocol/RTMPChunkParser.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPChunkParser.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPChunkParser.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPChunkParser~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPChunkParser.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPChunkParser.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Protocol/RTMPChunkStream.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPChunkStream.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPChunkStream.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPChunkStream~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPChunkStream.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPChunkStream.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Protocol/RTMPCommandHandler.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPCommandHandler.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPCommandHandler.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPCommandHandler~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPCommandHandler.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPCommandHandler.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Protocol/RTMPHandshake.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPHandshake.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPHandshake.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPHandshake~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPHandshake.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPHandshake.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Protocol/RTMPMessage.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPMessage.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPMessage.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPMessage~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPMessage.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPMessage.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Public/RTMPServer+Public.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPServer+Public.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPServer+Public.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPServer+Public~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPServer+Public.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPServer+Public.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Render/RTMPPreviewView.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPPreviewView.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPPreviewView.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPPreviewView~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPPreviewView.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RTMPPreviewView.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Render/VideoRenderer.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/VideoRenderer.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/VideoRenderer.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/VideoRenderer~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/VideoRenderer.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/VideoRenderer.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Utils/ByteReader.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/ByteReader.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/ByteReader.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/ByteReader~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/ByteReader.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/ByteReader.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Utils/RingBuffer.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RingBuffer.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RingBuffer.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RingBuffer~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RingBuffer.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/RingBuffer.dia"
+  },
+  "/Users/katchy/Documents/ios-RTMPServerKit/Sources/RTMPServerKit/Utils/ThreadSafeQueue.swift": {
+    "dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/ThreadSafeQueue.d",
+    "object": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/ThreadSafeQueue.swift.o",
+    "swiftmodule": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/ThreadSafeQueue~partial.swiftmodule",
+    "swift-dependencies": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/ThreadSafeQueue.swiftdeps",
+    "diagnostics": "/Users/katchy/Documents/ios-RTMPServerKit/.build/arm64-apple-macosx/debug/RTMPServerKit.build/ThreadSafeQueue.dia"
+  }
+}
