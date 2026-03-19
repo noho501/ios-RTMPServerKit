@@ -36,6 +36,16 @@ final class ViewController: UIViewController {
         return l
     }()
 
+    private let statsLabel: UILabel = {
+        let l = UILabel()
+        l.textColor = .white
+        l.font = .monospacedSystemFont(ofSize: 12, weight: .regular)
+        l.textAlignment = .center
+        l.numberOfLines = 2
+        l.text = "In: 0 fps  Render: 0 fps  Drop: 0 fps\nBitrate: 0 kbps  Queue: 0  Delay: 0 ms  0x0"
+        return l
+    }()
+
     private let overlayView: UIView = {
         let v = UIView()
         v.backgroundColor = UIColor.black.withAlphaComponent(0.6)
@@ -71,12 +81,12 @@ final class ViewController: UIViewController {
             overlayView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             overlayView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             overlayView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            overlayView.heightAnchor.constraint(equalToConstant: 110)
+            overlayView.heightAnchor.constraint(equalToConstant: 145)
         ])
 
-        let stack = UIStackView(arrangedSubviews: [urlLabel, streamKeyLabel, statusLabel])
+        let stack = UIStackView(arrangedSubviews: [urlLabel, streamKeyLabel, statusLabel, statsLabel])
         stack.axis = .vertical
-        stack.spacing = 6
+        stack.spacing = 5
         stack.translatesAutoresizingMaskIntoConstraints = false
         overlayView.addSubview(stack)
         NSLayoutConstraint.activate([
@@ -89,6 +99,22 @@ final class ViewController: UIViewController {
     // MARK: - Server
 
     private func startServer() {
+        previewView.preferredPlayoutDelay = 0.8
+        previewView.preferredMaxQueueDepth = 32
+        previewView.onStats = { [weak self] stats in
+            let text = String(
+                format: "In: %.1f fps  Render: %.1f fps  Drop: %.1f fps\nBitrate: %.0f kbps  Queue: %d  Delay: %d ms  %dx%d",
+                stats.incomingFPS,
+                stats.renderedFPS,
+                stats.droppedFPS,
+                stats.bitrateKbps,
+                stats.queueDepth,
+                stats.playoutDelayMs,
+                Int(stats.width),
+                Int(stats.height)
+            )
+            self?.statsLabel.text = text
+        }
         previewView.attach(server: server)
 
         server.onPublish = { [weak self] key in
@@ -110,7 +136,8 @@ final class ViewController: UIViewController {
     // MARK: - Helpers
 
     private func deviceIPAddress() -> String? {
-        var address: String?
+        var wifiAddress: String?
+        var otherAddress: String?
         var ifaddr: UnsafeMutablePointer<ifaddrs>?
         guard getifaddrs(&ifaddr) == 0 else { return nil }
         defer { freeifaddrs(ifaddr) }
@@ -136,12 +163,17 @@ final class ViewController: UIViewController {
                         0,
                         NI_NUMERICHOST
                     )
-                    address = String(cString: hostname)
-                    break
+                    let ip = String(cString: hostname)
+                    let interface = String(cString: current.pointee.ifa_name)
+                    if interface == "en0" {
+                        wifiAddress = ip
+                    } else if otherAddress == nil {
+                        otherAddress = ip
+                    }
                 }
             }
             ptr = current.pointee.ifa_next
         }
-        return address
+        return wifiAddress ?? otherAddress
     }
 }
