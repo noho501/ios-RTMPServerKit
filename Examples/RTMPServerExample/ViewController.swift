@@ -118,9 +118,11 @@ final class ViewController: UIViewController {
         previewView.attach(server: server)
 
         server.onPublish = { [weak self] key in
+            self?.previewView.resetStreamState()
             self?.statusLabel.text = "🔴 Publishing: \(key)"
         }
         server.onDisconnect = { [weak self] in
+            self?.previewView.resetStreamState()
             self?.statusLabel.text = "Waiting for stream…"
         }
 

@@ -13,6 +13,8 @@ final class VideoRenderer {
     private let maxPendingCount: Int
     private var baseSourcePTS: CMTime?
     private var baseHostTime: CFTimeInterval?
+    private var requiresSyncFrame: Bool = true
+    private var renderEpoch: UInt64 = 0
     private var pendingCount: Int = 0
     private var incomingCount: Int = 0
     private var renderedCount: Int = 0
@@ -33,10 +35,19 @@ final class VideoRenderer {
     func enqueue(_ sampleBuffer: CMSampleBuffer) {
         trackIncoming(sampleBuffer)
 
-        if displayLayer.status == .failed {
-            displayLayer.flush()
-            displayLayer.controlTimebase = makeControlTimebase()
+        let syncFrame = isSyncFrame(sampleBuffer)
+        if requiresSyncFrame {
+            guard syncFrame else {
+                droppedCount += 1
+                emitStatsIfNeeded()
+                return
+            }
+            requiresSyncFrame = false
             resetPlayoutClock()
+        }
+
+        if displayLayer.status == .failed {
+            startNewStream()
         }
 
         if pendingCount >= maxPendingCount {
@@ -46,29 +57,38 @@ final class VideoRenderer {
         }
 
         let delay = max(0, targetHostTime(for: sampleBuffer) - CACurrentMediaTime())
+        let epoch = renderEpoch
         pendingCount += 1
 
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
-            self?.render(sampleBuffer)
+            self?.render(sampleBuffer, epoch: epoch)
         }
     }
 
     func flush() {
+        startNewStream()
+    }
+
+    func startNewStream() {
+        renderEpoch &+= 1
         displayLayer.flush()
         displayLayer.controlTimebase = makeControlTimebase()
         pendingCount = 0
+        requiresSyncFrame = true
         resetPlayoutClock()
     }
 
     // MARK: - Private
 
-    private func render(_ sampleBuffer: CMSampleBuffer) {
+    private func render(_ sampleBuffer: CMSampleBuffer, epoch: UInt64) {
+        guard epoch == renderEpoch else { return }
         pendingCount = max(0, pendingCount - 1)
 
         if displayLayer.status == .failed {
-            displayLayer.flush()
-            displayLayer.controlTimebase = makeControlTimebase()
-            resetPlayoutClock()
+            startNewStream()
+            droppedCount += 1
+            emitStatsIfNeeded()
+            return
         }
 
         if !displayLayer.isReadyForMoreMediaData {
@@ -80,6 +100,25 @@ final class VideoRenderer {
         displayLayer.enqueue(sampleBuffer)
         renderedCount += 1
         emitStatsIfNeeded()
+    }
+
+    private func isSyncFrame(_ sampleBuffer: CMSampleBuffer) -> Bool {
+        guard let attachmentsArray = CMSampleBufferGetSampleAttachmentsArray(
+            sampleBuffer, createIfNecessary: false
+        ) else {
+            return true
+        }
+        guard CFArrayGetCount(attachmentsArray) > 0,
+              let rawDict = CFArrayGetValueAtIndex(attachmentsArray, 0) else {
+            return true
+        }
+        let dict = unsafeBitCast(rawDict, to: CFDictionary.self)
+        let notSync = CFDictionaryGetValue(
+            dict,
+            Unmanaged.passUnretained(kCMSampleAttachmentKey_NotSync).toOpaque()
+        )
+        guard let notSync else { return true }
+        return CFBooleanGetValue(unsafeBitCast(notSync, to: CFBoolean.self)) == false
     }
 
     private func trackIncoming(_ sampleBuffer: CMSampleBuffer) {

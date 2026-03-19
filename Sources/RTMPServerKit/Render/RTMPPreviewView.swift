@@ -43,6 +43,10 @@ public final class RTMPPreviewView: UIView {
         }
     }
 
+    public func resetStreamState() {
+        renderer?.startNewStream()
+    }
+
     public override func layoutSubviews() {
         super.layoutSubviews()
         renderer?.displayLayer.frame = bounds
