@@ -111,6 +111,7 @@ final class SampleBufferFactory {
         if isKeyframe {
             markAsSync(sampleBuffer: sb)
         }
+        markDisplayImmediately(sampleBuffer: sb)
 
         return sb
     }
@@ -133,6 +134,23 @@ final class SampleBufferFactory {
         )
     }
 
+    private func markDisplayImmediately(sampleBuffer: CMSampleBuffer) {
+        guard let attachmentsArray = CMSampleBufferGetSampleAttachmentsArray(
+            sampleBuffer, createIfNecessary: true
+        ) else { return }
+        let count = CFArrayGetCount(attachmentsArray)
+        guard count > 0,
+              let rawDict = CFArrayGetValueAtIndex(attachmentsArray, 0) else { return }
+        let dict = Unmanaged<CFMutableDictionary>
+            .fromOpaque(rawDict)
+            .takeUnretainedValue()
+        CFDictionarySetValue(
+            dict,
+            Unmanaged.passUnretained(kCMSampleAttachmentKey_DisplayImmediately).toOpaque(),
+            Unmanaged.passUnretained(kCFBooleanTrue).toOpaque()
+        )
+    }
+
     // MARK: - Private
 
     private func makeFormatDescription(sps: Data, pps: Data) -> CMVideoFormatDescription? {
@@ -143,7 +161,7 @@ final class SampleBufferFactory {
                       let ppsBase = ppsPtr.baseAddress else {
                     return Int32(-1)
                 }
-                var parameterSetPointers: [UnsafePointer<UInt8>?] = [
+                var parameterSetPointers: [UnsafePointer<UInt8>] = [
                     spsBase.assumingMemoryBound(to: UInt8.self),
                     ppsBase.assumingMemoryBound(to: UInt8.self)
                 ]
