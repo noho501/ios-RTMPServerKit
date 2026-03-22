@@ -42,7 +42,7 @@ final class ViewController: UIViewController {
         l.font = .monospacedSystemFont(ofSize: 12, weight: .regular)
         l.textAlignment = .center
         l.numberOfLines = 2
-        l.text = "In: 0 fps  Render: 0 fps  Drop: 0 fps\nBitrate: 0 kbps  Queue: 0  Delay: 0 ms  0x0"
+        l.text = "In: 0 fps  Render: 0 fps  Drop: 0 fps\nBitrate: 0 kbps  Queue: 0  0x0"
         return l
     }()
 
@@ -99,17 +99,17 @@ final class ViewController: UIViewController {
     // MARK: - Server
 
     private func startServer() {
-        previewView.preferredPlayoutDelay = 0.8
-        previewView.preferredMaxQueueDepth = 32
+        // useReordering = false (default): render frames in arrival order so timing
+        // and out-of-order issues are clearly visible in console logs and the overlay.
+        previewView.useReordering = false
         previewView.onStats = { [weak self] stats in
             let text = String(
-                format: "In: %.1f fps  Render: %.1f fps  Drop: %.1f fps\nBitrate: %.0f kbps  Queue: %d  Delay: %d ms  %dx%d",
+                format: "In: %.1f fps  Render: %.1f fps  Drop: %.1f fps\nBitrate: %.0f kbps  Queue: %d  %dx%d",
                 stats.incomingFPS,
                 stats.renderedFPS,
                 stats.droppedFPS,
                 stats.bitrateKbps,
                 stats.queueDepth,
-                stats.playoutDelayMs,
                 Int(stats.width),
                 Int(stats.height)
             )
