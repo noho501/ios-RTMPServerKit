@@ -7,23 +7,58 @@ import CoreVideo
 import QuartzCore
 import UIKit
 
-/// Renders decoded video frames using Metal + CoreImage.
+/// Weak-target proxy that breaks the CADisplayLink → VideoRenderer retain cycle.
 ///
-/// This renderer replaces `AVSampleBufferDisplayLayer` with a transparent, frame-by-frame
-/// pipeline that exposes all timing, ordering and pacing problems rather than hiding them.
+/// `CADisplayLink` retains its target strongly.  By using a proxy that holds only a
+/// `weak` reference to the renderer, the renderer can be deallocated normally and
+/// `VideoRenderer.deinit` will invalidate the display link via `stopDisplayLink()`.
+private final class DisplayLinkProxy: NSObject {
+    weak var renderer: VideoRenderer?
+    init(_ renderer: VideoRenderer) { self.renderer = renderer }
+    @objc func tick() { renderer?.displayLinkTick() }
+}
+
+/// Renders decoded video frames using Metal + CoreImage with a stable, clock-paced playback
+/// buffer that eliminates stutter caused by B-frame reordering, network jitter, and
+/// irregular decode timing.
+///
+/// **Architecture overview**
+/// All incoming frames are inserted into a PTS-sorted buffer (`frameBuffer`).  A
+/// `CADisplayLink` ticks on every display refresh and releases frames whose scheduled
+/// presentation time has arrived, achieving frame-accurate pacing without busy-waiting.
+///
+/// **Playback clock**
+/// When the buffer accumulates `minBufferDuration` seconds of frames the clock is
+/// anchored:
+/// ```
+///   basePTS  = PTS of the first frame in the buffer
+///   baseTime = current wall-clock time  (CACurrentMediaTime)
+/// ```
+/// Every subsequent frame is released at:
+/// ```
+///   targetTime = baseTime + (frame.pts − basePTS)
+/// ```
+/// This maps PTS deltas directly onto real wall-clock time while remaining immune to
+/// absolute PTS values (which can be arbitrary large integers from an RTMP stream).
+///
+/// **Jitter / underrun handling**
+/// If the renderable buffer falls below `refillThreshold` seconds the clock is paused
+/// and re-anchored once `minBufferDuration` is reached again, avoiding temporal
+/// distortion from attempting to "catch up".
 ///
 /// **Threading model**
-/// - `enqueue(_:)` must be called on the **main thread** (as delivered by `RTMPServer`).
-/// - Frame ordering, logging and out-of-order detection run on a dedicated serial
-///   `renderQueue`.
-/// - Metal draw calls are triggered synchronously on the **main thread**.
+/// - `enqueue(_:)` and `startNewStream()` must be called on the **main thread**.
+/// - All buffer mutation, pacing logic and Metal draw calls run on the **main thread**
+///   (driven by CADisplayLink), so no additional locking is required.
 ///
-/// **Debug features**
-/// - Every rendered frame is logged to the console:
-///   `[Frame] pts=1.033, delta=0.033, system=12345.67`
-/// - Out-of-order frames produce a warning:
-///   `[WARNING] Frame out of order! currentPTS=…, lastPTS=…`
-/// - An on-screen `debugOverlayLabel` shows the same info visually.
+/// **Debug logging**
+/// ```
+/// [Render]  pts=1.033, delay=0.0012, bufferSize=28
+/// [WARNING] Out-of-order input pts=1.000, lastReceivedPTS=1.033
+/// [DROP]    Late frame pts=0.967 (lastRendered=1.033)
+/// [Pacing]  Playback started. basePTS=1.000s, buffer=1.23s (37 frames)
+/// [Pacing]  Buffer underrun (0.12s / 4 frames). Pausing for refill.
+/// ```
 final class VideoRenderer: NSObject, MTKViewDelegate {
 
     // MARK: - Public interface
@@ -34,22 +69,32 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
     /// Stats callback, delivered on the main thread approximately once per second.
     var onStats: ((RTMPRenderStats) -> Void)?
 
-    /// When `true`, incoming frames are held in a small buffer and sorted by PTS before
-    /// rendering.  This can hide out-of-order artifacts but is useful for comparison.
-    /// When `false` (default), every frame is rendered immediately in arrival order,
-    /// exposing any ordering or pacing problems.
-    var useReordering: Bool = false
+    /// Minimum seconds of frames to buffer before playback begins (and after an underrun).
+    /// Larger values reduce stutter at the cost of added latency.  Default: **1.0 s**.
+    var minBufferDuration: Double = 1.0
 
-    /// Number of frames held in the PTS-sort buffer when `useReordering` is `true`.
+    /// If the renderable buffer drops below this threshold the clock is paused until
+    /// `minBufferDuration` is reached again.  Default: **0.5 s**.
+    var refillThreshold: Double = 0.5
+
+    /// Hard cap on buffered frames to bound memory usage.
+    /// At 30 fps this is ~3 seconds; at 60 fps ~1.5 seconds.  Default: **90**.
+    var maxBufferFrames: Int = 90
+
+    /// Kept for API compatibility.  The renderer always uses PTS-sorted buffering.
+    var useReordering: Bool = true
+
+    /// Kept for API compatibility.  Minimum reorder depth is governed by
+    /// `minBufferDuration` instead.
     var reorderBufferSize: Int = 4
 
     /// Overlay label placed in the top-left corner of `metalView`.
-    /// Displays per-frame debug info: frame index, PTS, delta and out-of-order count.
+    /// Displays per-frame debug info: index, PTS, render delay, buffer depth and OOO count.
     let debugOverlayLabel: UILabel = {
         let l = UILabel()
         l.textColor = .yellow
         l.font = .monospacedSystemFont(ofSize: 11, weight: .medium)
-        l.numberOfLines = 3
+        l.numberOfLines = 4
         l.textAlignment = .left
         l.backgroundColor = UIColor.black.withAlphaComponent(0.55)
         l.layer.cornerRadius = 4
@@ -67,7 +112,24 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
 
     // MARK: - Private state — main thread only
 
+    /// PTS-sorted buffer of decoded frames waiting for their scheduled presentation time.
+    private var frameBuffer: [PendingFrame] = []
+
+    // Playback clock
+    private var basePTS: CMTime = .invalid
+    private var baseTime: CFTimeInterval = 0
+    private var isPlaying = false
+
+    /// PTS of the most recently rendered frame (used to detect / drop late frames).
+    private var lastRenderedPTS: CMTime = .invalid
+    /// PTS of the most recently received input frame (used to detect out-of-order input).
+    private var lastReceivedPTS: CMTime = .invalid
+
     private var requiresSyncFrame = true
+    private var frameIndex = 0
+    private var outOfOrderInputCount = 0
+
+    // Stats — main thread only
     private var incomingCount = 0
     private var renderedCount = 0
     private var droppedCount = 0
@@ -77,27 +139,17 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
     private var statsWindowStart: CFTimeInterval = CACurrentMediaTime()
     private var pendingCountForStats = 0
 
-    // MARK: - Private state — renderQueue only
+    // MARK: - CADisplayLink — main thread only
 
-    private let renderQueue = DispatchQueue(label: "rtmp.renderer.serial", qos: .userInteractive)
-    private var pendingFrames: [PendingFrame] = []
-    private var lastRenderedPTS: CMTime = .invalid
-    private var frameIndex = 0
-    private var outOfOrderCount = 0
-
-    // MARK: - Private state — protected by frameLock
-
-    private let frameLock = NSLock()
-    /// Epoch incremented on `startNewStream()` so stale renderQueue dispatches are ignored.
-    private var renderEpoch: UInt64 = 0
-    private var latestFrame: PendingFrame?
-    private var latestOverlayText = ""
+    private var displayLink: CADisplayLink?
 
     // MARK: - Private Metal state — main thread only
 
     private let device: MTLDevice
     private let ciContext: CIContext
     private var commandQueue: MTLCommandQueue?
+    /// Frame staged for the next `draw(in:)` call.
+    private var frameForDraw: PendingFrame?
 
     // MARK: - Init
 
@@ -127,11 +179,18 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
             debugOverlayLabel.leadingAnchor.constraint(equalTo: mtkView.leadingAnchor, constant: 8),
             debugOverlayLabel.topAnchor.constraint(equalTo: mtkView.topAnchor, constant: 8)
         ])
+
+        startDisplayLink()
+    }
+
+    deinit {
+        stopDisplayLink()
     }
 
     // MARK: - Public API
 
-    /// Enqueue a decoded sample buffer for rendering.  Must be called on the **main thread**.
+    /// Enqueue a decoded sample buffer into the playback buffer.
+    /// Must be called on the **main thread** (as guaranteed by `RTMPServer`).
     func enqueue(_ sampleBuffer: CMSampleBuffer) {
         // Wait for the first sync (key) frame so rendering starts cleanly.
         let syncFrame = isSyncFrame(sampleBuffer)
@@ -144,7 +203,7 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
             requiresSyncFrame = false
         }
 
-        // Track incoming metrics (main thread).
+        // Track incoming metrics.
         incomingCount += 1
         incomingBytes += CMSampleBufferGetTotalSampleSize(sampleBuffer)
         if let fmt = CMSampleBufferGetFormatDescription(sampleBuffer) {
@@ -160,122 +219,137 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
         }
 
         let pts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
-        let frame = PendingFrame(pixelBuffer: pixelBuffer, pts: pts)
 
-        // Hand off to the serial render queue for ordering / logging.
-        renderQueue.async { [weak self] in
-            self?.processFrame(frame)
+        // Detect out-of-order input (frames arriving at the renderer in the wrong order).
+        if lastReceivedPTS.isValid && pts.isValid && CMTimeCompare(pts, lastReceivedPTS) < 0 {
+            outOfOrderInputCount += 1
+            RTMPLogger.error(String(
+                format: "[WARNING] Out-of-order input pts=%.3f, lastReceivedPTS=%.3f",
+                CMTimeGetSeconds(pts), CMTimeGetSeconds(lastReceivedPTS)
+            ))
         }
+        if pts.isValid { lastReceivedPTS = pts }
+
+        // Hard cap: drop the oldest buffered frame when the buffer is full.
+        if frameBuffer.count >= maxBufferFrames {
+            let dropped = frameBuffer.removeFirst()
+            droppedCount += 1
+            RTMPLogger.error(String(
+                format: "[DROP] Buffer full (%d frames), dropping oldest frame pts=%.3f",
+                maxBufferFrames, CMTimeGetSeconds(dropped.pts)
+            ))
+        }
+
+        // Insert the frame at the correct PTS-sorted position (insertion sort).
+        // The buffer is bounded by maxBufferFrames so this is O(n) with small n.
+        let frame = PendingFrame(pixelBuffer: pixelBuffer, pts: pts)
+        let insertIdx = frameBuffer.firstIndex(where: { CMTimeCompare($0.pts, pts) > 0 }) ?? frameBuffer.endIndex
+        frameBuffer.insert(frame, at: insertIdx)
+
         emitStatsIfNeeded()
     }
 
     /// Reset renderer state — call when a new publish session begins.
     /// Must be called on the **main thread**.
     func startNewStream() {
-        // Bump epoch under lock so any in-flight renderQueue dispatches are silently dropped.
-        frameLock.lock()
-        renderEpoch &+= 1
-        latestFrame = nil
-        latestOverlayText = ""
-        frameLock.unlock()
-
-        // Clear renderQueue-only state asynchronously.
-        renderQueue.async { [weak self] in
-            guard let self else { return }
-            self.pendingFrames.removeAll()
-            self.lastRenderedPTS = .invalid
-            self.frameIndex = 0
-            self.outOfOrderCount = 0
-        }
-
-        // Reset main-thread state.
+        frameBuffer.removeAll()
+        basePTS = .invalid
+        baseTime = 0
+        isPlaying = false
+        lastRenderedPTS = .invalid
+        lastReceivedPTS = .invalid
         requiresSyncFrame = true
+        frameIndex = 0
+        outOfOrderInputCount = 0
         pendingCountForStats = 0
+        frameForDraw = nil
         debugOverlayLabel.text = nil
     }
 
-    // MARK: - Private — frame pipeline (renderQueue)
+    // MARK: - Private — CADisplayLink
 
-    private func processFrame(_ frame: PendingFrame) {
-        if useReordering {
-            // Insert in PTS order; emit the earliest once the buffer is full enough.
-            let insertIdx = pendingFrames.firstIndex(where: {
-                CMTimeCompare($0.pts, frame.pts) > 0
-            }) ?? pendingFrames.endIndex
-            pendingFrames.insert(frame, at: insertIdx)
-            while pendingFrames.count > reorderBufferSize {
-                scheduleRender(pendingFrames.removeFirst(), queueDepth: pendingFrames.count)
-            }
-        } else {
-            scheduleRender(frame, queueDepth: 0)
-        }
+    private func startDisplayLink() {
+        let proxy = DisplayLinkProxy(self)
+        let link = CADisplayLink(target: proxy, selector: #selector(DisplayLinkProxy.tick))
+        link.add(to: .main, forMode: .common)
+        displayLink = link
     }
 
-    private func scheduleRender(_ frame: PendingFrame, queueDepth: Int) {
-        let pts = frame.pts
-        let systemNow = CACurrentMediaTime()
-        frameIndex += 1
-        let idx = frameIndex
+    private func stopDisplayLink() {
+        displayLink?.invalidate()
+        displayLink = nil
+    }
 
-        let ptsSec = pts.isValid ? CMTimeGetSeconds(pts) : -1.0
-        var deltaSec: Double = 0
-        if lastRenderedPTS.isValid && pts.isValid {
-            deltaSec = CMTimeGetSeconds(pts - lastRenderedPTS)
-        }
+    /// Called on every display refresh (main thread).  Checks which buffered frames are
+    /// due for presentation and renders them in PTS order.
+    fileprivate func displayLinkTick() {
+        let now = CACurrentMediaTime()
+        let bufferDuration = computeBufferDuration()
 
-        // Frame timing log (requirement 3) — debug builds only.
-        RTMPLogger.debug(String(format: "[Frame] pts=%.3f, delta=%.3f, system=%.2f", ptsSec, deltaSec, systemNow))
+        if !isPlaying {
+            // Wait until the buffer holds at least `minBufferDuration` of content.
+            guard bufferDuration >= minBufferDuration, let firstFrame = frameBuffer.first else { return }
 
-        // Out-of-order detection (requirement 4).
-        if lastRenderedPTS.isValid && pts.isValid && CMTimeCompare(pts, lastRenderedPTS) < 0 {
-            outOfOrderCount += 1
-            RTMPLogger.error(String(
-                format: "[WARNING] Frame out of order! currentPTS=%.3f, lastPTS=%.3f",
-                ptsSec,
-                CMTimeGetSeconds(lastRenderedPTS)
+            // Anchor the playback clock to the first frame in the buffer.
+            basePTS = firstFrame.pts
+            baseTime = now
+            isPlaying = true
+            RTMPLogger.info(String(
+                format: "[Pacing] Playback started. basePTS=%.3fs, buffer=%.2fs (%d frames)",
+                CMTimeGetSeconds(basePTS), bufferDuration, frameBuffer.count
             ))
+        } else if bufferDuration < refillThreshold {
+            // Buffer underrun — pause and re-anchor when refilled.
+            isPlaying = false
+            RTMPLogger.error(String(
+                format: "[Pacing] Buffer underrun (%.2fs / %d frames). Pausing for refill.",
+                bufferDuration, frameBuffer.count
+            ))
+            return
         }
 
-        lastRenderedPTS = pts
+        // Release all frames whose scheduled presentation time has arrived.
+        while let next = frameBuffer.first {
+            let targetTime = baseTime + CMTimeGetSeconds(next.pts - basePTS)
+            guard now >= targetTime else { break }
+            frameBuffer.removeFirst()
 
-        let overlayText = String(
-            format: " #%d  PTS: %.3f\n Δ: %.3f s\n OOO: %d ",
-            idx, ptsSec, deltaSec, outOfOrderCount
-        )
+            // Drop frames that are strictly late relative to what has already been rendered.
+            if lastRenderedPTS.isValid && next.pts.isValid
+                && CMTimeCompare(next.pts, lastRenderedPTS) <= 0 {
+                droppedCount += 1
+                RTMPLogger.error(String(
+                    format: "[DROP] Late frame pts=%.3fs (lastRendered=%.3fs)",
+                    CMTimeGetSeconds(next.pts), CMTimeGetSeconds(lastRenderedPTS)
+                ))
+                continue
+            }
 
-        // Publish frame and epoch atomically so the main-thread draw call is consistent.
-        frameLock.lock()
-        let epoch = renderEpoch
-        latestFrame = frame
-        latestOverlayText = overlayText
-        frameLock.unlock()
+            // Commit this frame for rendering.
+            lastRenderedPTS = next.pts
+            frameIndex += 1
+            let idx = frameIndex
+            let delay = now - targetTime
+            let bufSize = frameBuffer.count
+            let ptsSec = CMTimeGetSeconds(next.pts)
+            let currentBufDuration = computeBufferDuration()
 
-        DispatchQueue.main.async { [weak self] in
-            self?.commitDraw(queueDepth: queueDepth, epoch: epoch)
+            RTMPLogger.debug(String(
+                format: "[Render] pts=%.3f, delay=%.4f, bufferSize=%d",
+                ptsSec, delay, bufSize
+            ))
+
+            let overlayText = String(
+                format: " #%d  PTS: %.3f\n delay: %.1f ms\n buf: %d fr / %.2f s\n OOO: %d ",
+                idx, ptsSec, delay * 1000, bufSize, currentBufDuration, outOfOrderInputCount
+            )
+            frameForDraw = next
+            metalView.draw()
+            debugOverlayLabel.text = overlayText
+            renderedCount += 1
         }
-    }
 
-    // MARK: - Private — rendering (main thread)
-
-    private func commitDraw(queueDepth: Int, epoch: UInt64) {
-        // Discard frames that belong to a previous stream session.
-        frameLock.lock()
-        let currentEpoch = renderEpoch
-        frameLock.unlock()
-        guard epoch == currentEpoch else { return }
-
-        pendingCountForStats = queueDepth
-
-        // Trigger a synchronous Metal draw call.
-        metalView.draw()
-
-        // Update the debug overlay label after the draw.
-        frameLock.lock()
-        let text = latestOverlayText
-        frameLock.unlock()
-        debugOverlayLabel.text = text
-
-        renderedCount += 1
+        pendingCountForStats = frameBuffer.count
         emitStatsIfNeeded()
     }
 
@@ -284,11 +358,7 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
 
     func draw(in view: MTKView) {
-        frameLock.lock()
-        let frame = latestFrame
-        frameLock.unlock()
-
-        guard let frame,
+        guard let frame = frameForDraw,
               let drawable = view.currentDrawable,
               let commandBuffer = commandQueue?.makeCommandBuffer() else { return }
 
@@ -318,7 +388,7 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
             height: Int(drawSize.height),
             pixelFormat: view.colorPixelFormat,
             commandBuffer: commandBuffer
-        ) {  drawable.texture }
+        ) { drawable.texture }
 
         do {
             try ciContext.startTask(toRender: ciImage, to: dest)
@@ -330,6 +400,14 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
     }
 
     // MARK: - Private — helpers
+
+    /// Returns the PTS span (in seconds) of the frames currently in the buffer.
+    private func computeBufferDuration() -> Double {
+        guard frameBuffer.count >= 2,
+              let first = frameBuffer.first, first.pts.isValid,
+              let last  = frameBuffer.last,  last.pts.isValid else { return 0 }
+        return max(0, CMTimeGetSeconds(last.pts - first.pts))
+    }
 
     private func isSyncFrame(_ sampleBuffer: CMSampleBuffer) -> Bool {
         guard let attachmentsArray = CMSampleBufferGetSampleAttachmentsArray(
@@ -363,7 +441,7 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
             queueDepth: pendingCountForStats,
             width: currentWidth,
             height: currentHeight,
-            playoutDelayMs: 0
+            playoutDelayMs: Int(minBufferDuration * 1000)
         )
         onStats?(stats)
 

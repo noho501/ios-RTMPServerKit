@@ -1,0 +1,152 @@
+{
+  "": {
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/master.swiftdeps"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Core/RTMPConnection.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPConnection.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPConnection.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPConnection~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPConnection.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPConnection.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Core/RTMPServer.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPServer.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPServer.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPServer~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPServer.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPServer.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Core/RTMPSessionState.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPSessionState.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPSessionState.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPSessionState~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPSessionState.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPSessionState.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Media/H264Parser.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/H264Parser.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/H264Parser.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/H264Parser~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/H264Parser.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/H264Parser.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Media/NALUAssembler.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/NALUAssembler.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/NALUAssembler.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/NALUAssembler~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/NALUAssembler.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/NALUAssembler.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Media/SPSPPSStore.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/SPSPPSStore.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/SPSPPSStore.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/SPSPPSStore~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/SPSPPSStore.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/SPSPPSStore.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Media/SampleBufferFactory.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/SampleBufferFactory.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/SampleBufferFactory.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/SampleBufferFactory~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/SampleBufferFactory.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/SampleBufferFactory.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Media/VideoDecoder.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/VideoDecoder.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/VideoDecoder.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/VideoDecoder~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/VideoDecoder.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/VideoDecoder.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Protocol/AMF0Decoder.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/AMF0Decoder.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/AMF0Decoder.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/AMF0Decoder~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/AMF0Decoder.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/AMF0Decoder.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Protocol/RTMPChunkParser.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPChunkParser.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPChunkParser.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPChunkParser~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPChunkParser.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPChunkParser.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Protocol/RTMPChunkStream.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPChunkStream.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPChunkStream.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPChunkStream~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPChunkStream.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPChunkStream.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Protocol/RTMPCommandHandler.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPCommandHandler.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPCommandHandler.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPCommandHandler~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPCommandHandler.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPCommandHandler.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Protocol/RTMPHandshake.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPHandshake.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPHandshake.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPHandshake~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPHandshake.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPHandshake.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Protocol/RTMPMessage.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPMessage.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPMessage.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPMessage~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPMessage.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPMessage.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Public/RTMPRenderStats.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPRenderStats.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPRenderStats.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPRenderStats~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPRenderStats.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPRenderStats.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Public/RTMPServer+Public.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPServer+Public.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPServer+Public.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPServer+Public~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPServer+Public.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPServer+Public.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Render/RTMPPreviewView.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPPreviewView.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPPreviewView.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPPreviewView~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPPreviewView.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RTMPPreviewView.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Render/VideoRenderer.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/VideoRenderer.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/VideoRenderer.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/VideoRenderer~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/VideoRenderer.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/VideoRenderer.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Utils/ByteReader.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/ByteReader.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/ByteReader.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/ByteReader~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/ByteReader.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/ByteReader.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Utils/RingBuffer.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RingBuffer.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RingBuffer.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RingBuffer~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RingBuffer.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/RingBuffer.dia"
+  },
+  "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/Sources/RTMPServerKit/Utils/ThreadSafeQueue.swift": {
+    "dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/ThreadSafeQueue.d",
+    "object": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/ThreadSafeQueue.swift.o",
+    "swiftmodule": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/ThreadSafeQueue~partial.swiftmodule",
+    "swift-dependencies": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/ThreadSafeQueue.swiftdeps",
+    "diagnostics": "/home/runner/work/ios-RTMPServerKit/ios-RTMPServerKit/.build/x86_64-unknown-linux-gnu/debug/RTMPServerKit.build/ThreadSafeQueue.dia"
+  }
+}
