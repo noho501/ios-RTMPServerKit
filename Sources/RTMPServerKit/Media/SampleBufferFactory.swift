@@ -111,7 +111,6 @@ final class SampleBufferFactory {
         if isKeyframe {
             markAsSync(sampleBuffer: sb)
         }
-        markDisplayImmediately(sampleBuffer: sb)
 
         return sb
     }
@@ -131,23 +130,6 @@ final class SampleBufferFactory {
             dict,
             Unmanaged.passUnretained(kCMSampleAttachmentKey_NotSync).toOpaque(),
             Unmanaged.passUnretained(kCFBooleanFalse).toOpaque()
-        )
-    }
-
-    private func markDisplayImmediately(sampleBuffer: CMSampleBuffer) {
-        guard let attachmentsArray = CMSampleBufferGetSampleAttachmentsArray(
-            sampleBuffer, createIfNecessary: true
-        ) else { return }
-        let count = CFArrayGetCount(attachmentsArray)
-        guard count > 0,
-              let rawDict = CFArrayGetValueAtIndex(attachmentsArray, 0) else { return }
-        let dict = Unmanaged<CFMutableDictionary>
-            .fromOpaque(rawDict)
-            .takeUnretainedValue()
-        CFDictionarySetValue(
-            dict,
-            Unmanaged.passUnretained(kCMSampleAttachmentKey_DisplayImmediately).toOpaque(),
-            Unmanaged.passUnretained(kCFBooleanTrue).toOpaque()
         )
     }
 
