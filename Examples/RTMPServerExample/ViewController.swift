@@ -101,7 +101,7 @@ final class ViewController: UIViewController {
     private func startServer() {
         // useReordering = false (default): render frames in arrival order so timing
         // and out-of-order issues are clearly visible in console logs and the overlay.
-        previewView.useReordering = false
+        previewView.useReordering = true
         previewView.onStats = { [weak self] stats in
             let text = String(
                 format: "In: %.1f fps  Render: %.1f fps  Drop: %.1f fps\nBitrate: %.0f kbps  Queue: %d  %dx%d",

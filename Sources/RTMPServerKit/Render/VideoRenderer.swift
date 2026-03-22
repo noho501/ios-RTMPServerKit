@@ -318,7 +318,7 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
             height: Int(drawSize.height),
             pixelFormat: view.colorPixelFormat,
             commandBuffer: commandBuffer
-        ) { _ in drawable.texture }
+        ) {  drawable.texture }
 
         do {
             try ciContext.startTask(toRender: ciImage, to: dest)
