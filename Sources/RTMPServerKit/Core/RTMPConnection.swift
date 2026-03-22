@@ -13,7 +13,7 @@ final class RTMPConnection {
     private let chunkParser = RTMPChunkParser()
     private let commandHandler: RTMPCommandHandler
     private let h264Parser: H264Parser
-    private let sampleBufferFactory: SampleBufferFactory
+    private let videoDecoder: VideoDecoder
     private let spsPPSStore: SPSPPSStore
 
     private(set) var state: RTMPSessionState = .uninitialized
@@ -32,7 +32,7 @@ final class RTMPConnection {
         let store = SPSPPSStore()
         self.spsPPSStore = store
         self.h264Parser = H264Parser(spsPPSStore: store)
-        self.sampleBufferFactory = SampleBufferFactory(spsPPSStore: store)
+        self.videoDecoder = VideoDecoder(spsPPSStore: store)
         self.commandHandler = RTMPCommandHandler()
 
         commandHandler.connection = self
@@ -47,16 +47,15 @@ final class RTMPConnection {
         }
 
         h264Parser.onNALUnits = { [weak self] nalus, isKeyframe, timestamp in
-            guard let self else { return }
-            if let sb = self.sampleBufferFactory.makeSampleBuffer(
-                nalus: nalus, isKeyframe: isKeyframe, timestamp: timestamp
-            ) {
-                self.onFrame?(sb)
-            }
+            self?.videoDecoder.decode(nalus: nalus, isKeyframe: isKeyframe, timestamp: timestamp)
         }
 
         h264Parser.onSPSPPSUpdated = { [weak self] in
-            self?.sampleBufferFactory.reset()
+            self?.videoDecoder.reset()
+        }
+
+        videoDecoder.onFrame = { [weak self] sampleBuffer in
+            self?.onFrame?(sampleBuffer)
         }
     }
 
@@ -171,7 +170,7 @@ final class RTMPConnection {
         state = .disconnected
         connection.cancel()
         spsPPSStore.reset()
-        sampleBufferFactory.reset()
+        videoDecoder.reset()
         onDisconnect?()
     }
 }
