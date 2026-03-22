@@ -15,7 +15,7 @@ import Foundation
 final class H264Parser {
     let spsPPSStore: SPSPPSStore
     var onSPSPPSUpdated: (() -> Void)?
-    var onNALUnits: (([Data], Bool, UInt32) -> Void)? // nalus, isKeyframe, timestamp
+    var onNALUnits: (([Data], Bool, UInt32, UInt32) -> Void)? // nalus, isKeyframe, dts, pts
 
     init(spsPPSStore: SPSPPSStore) {
         self.spsPPSStore = spsPPSStore
@@ -38,11 +38,21 @@ final class H264Parser {
             // AVCDecoderConfigurationRecord
             parseDecoderConfig(payload: payload, offset: 5)
         case 1:
-            // AVC NAL units
+            // AVC NAL units.
+            // Byte bounds: the `payload.count >= 5` guard above ensures indices 2–4 are valid.
+            // Composition time offset (CTO): signed 24-bit big-endian integer in bytes 2–4 (ms).
+            // When B-frames are present the RTMP message timestamp is the DTS; PTS = DTS + CTO.
+            let rawCTO: Int32 = Int32(payload[2]) << 16 | Int32(payload[3]) << 8 | Int32(payload[4])
+            // Sign-extend the 24-bit value to 32 bits:
+            //   0x800000 is the sign bit of a 24-bit integer;
+            //   OR-ing 0xFF000000 fills the upper byte with 1s to complete the two's-complement extension.
+            let cto: Int32 = (rawCTO & 0x800000) != 0 ? (rawCTO | Int32(bitPattern: 0xFF000000)) : rawCTO
+            let dts = message.timestamp
+            let pts = UInt32(bitPattern: Int32(bitPattern: dts) &+ cto)
             let naluPayload = payload.dropFirst(5)
             let nalus = parseNALUs(Data(naluPayload))
             if !nalus.isEmpty {
-                onNALUnits?(nalus, isKeyframe, message.timestamp)
+                onNALUnits?(nalus, isKeyframe, dts, pts)
             }
         default:
             break

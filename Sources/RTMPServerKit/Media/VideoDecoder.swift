@@ -5,7 +5,8 @@ import CoreVideo
 /// Decodes H264 video frames using `VTDecompressionSession`.
 ///
 /// Input:  AVCC-format NAL unit arrays from `H264Parser`
-/// Output: Decoded `CMSampleBuffer` containing a `CVPixelBuffer` via `onFrame`
+/// Output: Decoded `CMSampleBuffer` containing a `CVPixelBuffer` via `onFrame`,
+///         delivered in presentation order (PTS-sorted reorder buffer).
 final class VideoDecoder {
     private let spsPPSStore: SPSPPSStore
     private var session: VTDecompressionSession?
@@ -14,8 +15,26 @@ final class VideoDecoder {
     private var lastPPS: Data?
     private let lock = NSLock()
 
-    /// Called on a VideoToolbox internal thread with a decoded `CMSampleBuffer`
-    /// whose image buffer (`CMSampleBufferGetImageBuffer`) is non-nil.
+    // MARK: - Reorder buffer
+    // Frames are decoded asynchronously and may arrive in decode order (DTS order).
+    // We collect them in a small buffer, sort by PTS, and emit the earliest frame
+    // once the buffer reaches `reorderBufferCapacity`.  All access is serialised on
+    // `reorderQueue` to avoid races with the VTDecompressionSession callback thread.
+    private let reorderQueue = DispatchQueue(label: "rtmp.decoder.reorder", qos: .userInteractive)
+    private struct DecodedFrame {
+        let pts: CMTime
+        let buffer: CMSampleBuffer
+    }
+    private var reorderBuffer: [DecodedFrame] = []
+    /// Number of decoded frames held back before the earliest is emitted.
+    /// Increase for streams with more consecutive B-frames (default: 4).
+    var reorderBufferCapacity: Int = 4
+    private var lastRenderedPTS: CMTime = .invalid
+    /// Monotonically increasing counter for frames arriving in the reorder buffer,
+    /// used only for debug logging.  Accessed exclusively on `reorderQueue`.
+    private var decodeOrderIndex: Int = 0
+
+    /// Called on `reorderQueue` with decoded frames in presentation order.
     var onFrame: ((CMSampleBuffer) -> Void)?
 
     init(spsPPSStore: SPSPPSStore) {
@@ -29,7 +48,10 @@ final class VideoDecoder {
     // MARK: - Public
 
     /// Feed NAL units (AVCC format, no length prefix) into the decoder.
-    func decode(nalus: [Data], isKeyframe: Bool, timestamp: UInt32) {
+    /// - Parameters:
+    ///   - dts: Decode timestamp from the RTMP message (milliseconds).
+    ///   - pts: Presentation timestamp = DTS + composition-time-offset (milliseconds).
+    func decode(nalus: [Data], isKeyframe: Bool, dts: UInt32, pts: UInt32) {
         guard let sps = spsPPSStore.sps, let pps = spsPPSStore.pps else { return }
 
         lock.lock()
@@ -47,11 +69,12 @@ final class VideoDecoder {
         guard let activeSession, let activeFormatDesc else { return }
         guard let blockBuffer = makeBlockBuffer(nalus: nalus) else { return }
 
-        let pts = CMTimeMake(value: Int64(timestamp), timescale: 1000)
+        let ptsCM  = CMTimeMake(value: Int64(pts), timescale: 1000)
+        let dtsCM  = CMTimeMake(value: Int64(dts), timescale: 1000)
         var timing = CMSampleTimingInfo(
             duration: .invalid,
-            presentationTimeStamp: pts,
-            decodeTimeStamp: .invalid
+            presentationTimeStamp: ptsCM,
+            decodeTimeStamp: dtsCM
         )
         let totalSize = nalus.reduce(0) { $0 + 4 + $1.count }
         var sampleSize = totalSize
@@ -71,6 +94,8 @@ final class VideoDecoder {
             sampleSizeArray: &sampleSize,
             sampleBufferOut: &compressedBuffer
         ) == noErr, let sb = compressedBuffer else { return }
+
+        RTMPLogger.debug("Submitting decode DTS=\(dts)ms PTS=\(pts)ms keyframe=\(isKeyframe)")
 
         var infoFlags = VTDecodeInfoFlags()
         let decodeStatus = VTDecompressionSessionDecodeFrame(
@@ -110,6 +135,13 @@ final class VideoDecoder {
         formatDescription = nil
         lastSPS = nil
         lastPPS = nil
+        // Drain any frames that were decoded but not yet emitted.
+        // VTDecompressionSessionWaitForAsynchronousFrames guarantees all callbacks
+        // have fired (and thus all reorderQueue.async blocks have been enqueued)
+        // before we reach this sync block, so the flush sees the complete buffer.
+        reorderQueue.sync {
+            flushReorderBufferLocked()
+        }
     }
 
     private func setUpSessionLocked(sps: Data, pps: Data) -> Bool {
@@ -221,6 +253,7 @@ final class VideoDecoder {
 
     // MARK: - Private – decode callback
 
+    /// Called on a VideoToolbox internal thread; must not block or render directly.
     fileprivate func didDecodeFrame(status: OSStatus, imageBuffer: CVImageBuffer?, pts: CMTime) {
         guard status == noErr, let pixelBuffer = imageBuffer else { return }
 
@@ -254,6 +287,49 @@ final class VideoDecoder {
             sampleBufferOut: &decodedBuffer
         ) == noErr, let sb = decodedBuffer else { return }
 
-        onFrame?(sb)
+        // Enqueue on the serial reorder queue — do NOT call onFrame directly here.
+        reorderQueue.async { [weak self] in
+            guard let self else { return }
+            self.decodeOrderIndex += 1
+            let idx = self.decodeOrderIndex
+            // Insert the frame at the correct sorted position by PTS (insertion sort).
+            // The buffer is tiny (≤ reorderBufferCapacity + 1 elements) so this is O(n).
+            let insertIndex = self.reorderBuffer.firstIndex(where: { CMTimeCompare($0.pts, pts) > 0 })
+                ?? self.reorderBuffer.endIndex
+            self.reorderBuffer.insert(DecodedFrame(pts: pts, buffer: sb), at: insertIndex)
+            RTMPLogger.debug("Reorder buffer size: \(self.reorderBuffer.count), arrival order=\(idx) PTS=\(pts.value)ms")
+            // Emit the earliest frame once the buffer is deep enough to absorb
+            // any reordering introduced by B-frames.
+            while self.reorderBuffer.count > self.reorderBufferCapacity {
+                self.emitEarliestFrameLocked()
+            }
+        }
+    }
+
+    // MARK: - Private – reorder helpers (must be called from reorderQueue)
+
+    /// Emit the frame with the lowest PTS from the reorder buffer.
+    private func emitEarliestFrameLocked() {
+        guard !reorderBuffer.isEmpty else { return }
+        let frame = reorderBuffer.removeFirst()
+        if lastRenderedPTS.isValid && CMTimeCompare(frame.pts, lastRenderedPTS) < 0 {
+            RTMPLogger.error(
+                "Out-of-order frame detected: PTS=\(frame.pts.value)ms < last rendered=\(lastRenderedPTS.value)ms"
+            )
+        }
+        RTMPLogger.debug("Emitting PTS=\(frame.pts.value)ms, buffer remaining=\(reorderBuffer.count)")
+        lastRenderedPTS = frame.pts
+        onFrame?(frame.buffer)
+    }
+
+    /// Emit all buffered frames in PTS order (used on teardown / reset).
+    private func flushReorderBufferLocked() {
+        // The buffer is maintained in sorted order by the insertion logic in didDecodeFrame,
+        // so no additional sort is needed here.
+        while !reorderBuffer.isEmpty {
+            emitEarliestFrameLocked()
+        }
+        lastRenderedPTS = .invalid
+        decodeOrderIndex = 0
     }
 }

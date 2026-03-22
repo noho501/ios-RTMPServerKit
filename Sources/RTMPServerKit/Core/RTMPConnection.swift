@@ -46,8 +46,8 @@ final class RTMPConnection {
             self?.handleMessage(message)
         }
 
-        h264Parser.onNALUnits = { [weak self] nalus, isKeyframe, timestamp in
-            self?.videoDecoder.decode(nalus: nalus, isKeyframe: isKeyframe, timestamp: timestamp)
+        h264Parser.onNALUnits = { [weak self] nalus, isKeyframe, dts, pts in
+            self?.videoDecoder.decode(nalus: nalus, isKeyframe: isKeyframe, dts: dts, pts: pts)
         }
 
         h264Parser.onSPSPPSUpdated = { [weak self] in
@@ -177,6 +177,12 @@ final class RTMPConnection {
 
 // Simple logger
 enum RTMPLogger {
+    static func debug(_ msg: String) {
+        #if DEBUG
+        print("[RTMPServerKit] DEBUG: \(msg)")
+        #endif
+    }
+
     static func info(_ msg: String) {
         #if DEBUG
         print("[RTMPServerKit] INFO: \(msg)")
