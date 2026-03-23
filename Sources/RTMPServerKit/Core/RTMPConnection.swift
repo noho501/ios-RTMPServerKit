@@ -1,6 +1,7 @@
 import Foundation
 import Network
 import CoreMedia
+import CoreVideo
 
 /// Manages a single RTMP client connection.
 final class RTMPConnection {
@@ -15,10 +16,11 @@ final class RTMPConnection {
     private let h264Parser: H264Parser
     private let videoDecoder: VideoDecoder
     private let spsPPSStore: SPSPPSStore
+    private let frameScheduler = FrameScheduler()
 
     private(set) var state: RTMPSessionState = .uninitialized
 
-    var onFrame: ((CMSampleBuffer) -> Void)?
+    var onFrame: ((CVPixelBuffer, CMTime) -> Void)?
     var onPublish: ((String) -> Void)?
     var onDisconnect: (() -> Void)?
     private(set) var outgoingChunkSize: Int = 128
@@ -54,8 +56,12 @@ final class RTMPConnection {
             self?.videoDecoder.reset()
         }
 
-        videoDecoder.onFrame = { [weak self] sampleBuffer in
-            self?.onFrame?(sampleBuffer)
+        videoDecoder.onFrame = { [weak self] pixelBuffer, pts in
+            self?.frameScheduler.enqueue(pixelBuffer: pixelBuffer, pts: pts)
+        }
+
+        frameScheduler.onFrame = { [weak self] pixelBuffer, pts in
+            self?.onFrame?(pixelBuffer, pts)
         }
     }
 
@@ -171,6 +177,7 @@ final class RTMPConnection {
         connection.cancel()
         spsPPSStore.reset()
         videoDecoder.reset()
+        frameScheduler.reset()
         onDisconnect?()
     }
 }
