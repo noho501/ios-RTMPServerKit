@@ -1,7 +1,7 @@
 import Foundation
 import Network
+import CoreImage
 import CoreMedia
-import CoreVideo
 
 /// Manages a single RTMP client connection.
 final class RTMPConnection {
@@ -20,7 +20,7 @@ final class RTMPConnection {
 
     private(set) var state: RTMPSessionState = .uninitialized
 
-    var onFrame: ((CVPixelBuffer, CMTime) -> Void)?
+    var onCIImage: ((CIImage, CMTime) -> Void)?
     var onPublish: ((String) -> Void)?
     var onDisconnect: (() -> Void)?
     private(set) var outgoingChunkSize: Int = 128
@@ -60,8 +60,8 @@ final class RTMPConnection {
             self?.frameScheduler.enqueue(pixelBuffer: pixelBuffer, pts: pts)
         }
 
-        frameScheduler.onFrame = { [weak self] pixelBuffer, pts in
-            self?.onFrame?(pixelBuffer, pts)
+        frameScheduler.onCIImage = { [weak self] ciImage, pts in
+            self?.onCIImage?(ciImage, pts)
         }
     }
 

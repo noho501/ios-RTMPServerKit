@@ -3,7 +3,6 @@ import Metal
 import MetalKit
 import CoreImage
 import CoreMedia
-import CoreVideo
 import QuartzCore
 import UIKit
 
@@ -16,17 +15,16 @@ private final class DisplayLinkProxy: NSObject {
 
 /// CIImage-based video renderer backed by Metal.
 ///
-/// Receives frames from `FrameScheduler` (which handles all buffering, sorting, and
-/// clock-pacing), stores the latest `CVPixelBuffer`, and renders it on every
-/// `CADisplayLink` tick.
+/// Receives `CIImage` frames from `FrameScheduler` (which handles all buffering, sorting,
+/// and clock-pacing), stores the latest frame, and renders it on every `CADisplayLink` tick.
 ///
 /// **Architecture**
-/// - All timing/ordering happens upstream in `FrameScheduler`.
-/// - This renderer only needs to: store the latest frame, convert to `CIImage`, and
-///   blit it into the Metal drawable via a shared `CIContext`.
+/// - All timing/ordering and CVPixelBuffer → CIImage conversion happens upstream in `FrameScheduler`.
+/// - This renderer only needs to: store the latest `CIImage` and blit it into the Metal
+///   drawable via a shared `CIContext`.
 ///
 /// **Threading model**
-/// - `enqueue(pixelBuffer:pts:)` and `startNewStream()` must be called on the **main thread**
+/// - `enqueue(ciImage:pts:)` and `startNewStream()` must be called on the **main thread**
 ///   (guaranteed by `FrameScheduler`).
 /// - All Metal / CIImage draw calls run on the **main thread** (driven by `CADisplayLink`).
 ///
@@ -71,7 +69,7 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
     // MARK: - Private state — main thread only
 
     /// Incoming frame not yet rendered; replaced on each new enqueue.
-    private var pendingFrame: (pixelBuffer: CVPixelBuffer, pts: CMTime)?
+    private var pendingFrame: (ciImage: CIImage, pts: CMTime)?
     /// PTS of the most recently rendered frame (prevents re-rendering the same frame).
     private var lastRenderedPTS: CMTime = .invalid
     private var frameIndex = 0
@@ -94,8 +92,8 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
     /// Shared CIContext backed by the Metal device.  Created once; never recreated per-frame.
     private let ciContext: CIContext
     private var commandQueue: MTLCommandQueue?
-    /// Pixel buffer staged for the current `draw(in:)` call.
-    private var frameForDraw: CVPixelBuffer?
+    /// CIImage staged for the current `draw(in:)` call.
+    private var frameForDraw: CIImage?
 
     // MARK: - Init
 
@@ -136,10 +134,10 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
 
     /// Store an incoming frame for rendering on the next CADisplayLink tick.
     /// Must be called on the **main thread** (guaranteed by `FrameScheduler`).
-    func enqueue(pixelBuffer: CVPixelBuffer, pts: CMTime) {
+    func enqueue(ciImage: CIImage, pts: CMTime) {
         incomingCount += 1
-        currentWidth  = Int32(CVPixelBufferGetWidth(pixelBuffer))
-        currentHeight = Int32(CVPixelBufferGetHeight(pixelBuffer))
+        currentWidth  = Int32(ciImage.extent.width)
+        currentHeight = Int32(ciImage.extent.height)
 
         // Guard against out-of-order delivery (FrameScheduler should prevent this;
         // log a warning if it ever occurs to help diagnose scheduler bugs).
@@ -158,7 +156,7 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
             droppedCount += 1
         }
 
-        pendingFrame = (pixelBuffer, pts)
+        pendingFrame = (ciImage, pts)
 
         emitStatsIfNeeded()
     }
@@ -206,7 +204,7 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
             ptsSec, frameIndex, Int(currentWidth), Int(currentHeight)
         ))
 
-        frameForDraw = frame.pixelBuffer
+        frameForDraw = frame.ciImage
         metalView.draw()
         renderedCount += 1
 
@@ -221,12 +219,11 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
 
     func draw(in view: MTKView) {
-        guard let pixelBuffer = frameForDraw,
+        guard let ciImage = frameForDraw,
               let drawable = view.currentDrawable,
               let commandBuffer = commandQueue?.makeCommandBuffer() else { return }
 
-        // Convert CVPixelBuffer → CIImage (zero-copy when possible)
-        var ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        var scaledImage = ciImage
 
         // Scale to aspect-fit, centred over a black background.
         let drawSize = view.drawableSize
@@ -238,14 +235,14 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
         let tx = (drawSize.width  - imgExtent.width  * scale) / 2.0
         let ty = (drawSize.height - imgExtent.height * scale) / 2.0
 
-        ciImage = ciImage
+        scaledImage = scaledImage
             .transformed(by: CGAffineTransform(scaleX: scale, y: scale))
             .transformed(by: CGAffineTransform(translationX: tx, y: ty))
 
         // Black letterbox background
         let background = CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1))
             .cropped(to: CGRect(origin: .zero, size: drawSize))
-        ciImage = ciImage.composited(over: background)
+        scaledImage = scaledImage.composited(over: background)
 
         let dest = CIRenderDestination(
             width: Int(drawSize.width),
@@ -255,7 +252,7 @@ final class VideoRenderer: NSObject, MTKViewDelegate {
         ) { drawable.texture }
 
         do {
-            try ciContext.startTask(toRender: ciImage, to: dest)
+            try ciContext.startTask(toRender: scaledImage, to: dest)
         } catch {
             RTMPLogger.error("CIContext render failed: \(error)")
         }

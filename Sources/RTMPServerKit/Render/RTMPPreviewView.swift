@@ -1,6 +1,6 @@
 import UIKit
+import CoreImage
 import CoreMedia
-import CoreVideo
 
 /// A UIView that renders RTMP video frames using Metal + CoreImage.
 ///
@@ -53,9 +53,9 @@ public final class RTMPPreviewView: UIView {
         r.metalView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         addSubview(r.metalView)
 
-        // onFrame is already delivered on the main thread by FrameScheduler.
-        server.onFrame = { [weak r] pixelBuffer, pts in
-            r?.enqueue(pixelBuffer: pixelBuffer, pts: pts)
+        // onCIImage is already delivered on the main thread by FrameScheduler.
+        server.onCIImage = { [weak r] ciImage, pts in
+            r?.enqueue(ciImage: ciImage, pts: pts)
         }
     }
 
