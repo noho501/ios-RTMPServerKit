@@ -1,4 +1,5 @@
 import Foundation
+import CoreImage
 import CoreMedia
 import CoreVideo
 import QuartzCore
@@ -10,13 +11,14 @@ import QuartzCore
 ///
 /// **Input:** Raw decoded frames (`CVPixelBuffer` + `CMTime` PTS) from `VideoDecoder`
 ///
-/// **Output:** Stable, PTS-ordered frames via `onFrame(pixelBuffer, pts)` on the **main thread**
+/// **Output:** Stable, PTS-ordered `CIImage` frames via `onCIImage(ciImage, pts)` on the **main thread**
 ///
 /// **Responsibilities:**
 /// - Buffer frames in a PTS-sorted queue (default 3 frames)
 /// - Anchor a wall-clock playback clock to the first buffered frame
 /// - Emit each frame only when `CACurrentMediaTime() >= targetTime` for that frame
 /// - Drop late or out-of-order frames
+/// - Convert `CVPixelBuffer` → `CIImage` immediately before dispatch (keeps CVPixelBuffer lifetime safe)
 ///
 /// **Playback clock:**
 /// ```
@@ -28,7 +30,7 @@ import QuartzCore
 ///
 /// **Threading model:**
 /// - `enqueue` may be called from any thread (dispatches internally to `schedulerQueue`)
-/// - `onFrame` is always delivered on the **main thread**
+/// - `onCIImage` is always delivered on the **main thread**
 ///
 /// **Debug logging:**
 /// ```
@@ -56,8 +58,8 @@ final class FrameScheduler {
 
     // MARK: - Output
 
-    /// Called on the **main thread** with stable, PTS-ordered frames.
-    var onFrame: ((CVPixelBuffer, CMTime) -> Void)?
+    /// Called on the **main thread** with stable, PTS-ordered frames as `CIImage`.
+    var onCIImage: ((CIImage, CMTime) -> Void)?
 
     // MARK: - Private state (protected by schedulerQueue)
 
@@ -176,10 +178,10 @@ final class FrameScheduler {
                 CMTimeGetSeconds(next.pts), delay, buffer.count
             ))
 
-            let pixelBuffer = next.pixelBuffer
+            let ciImage = CIImage(cvPixelBuffer: next.pixelBuffer)
             let pts = next.pts
             DispatchQueue.main.async { [weak self] in
-                self?.onFrame?(pixelBuffer, pts)
+                self?.onCIImage?(ciImage, pts)
             }
         }
 

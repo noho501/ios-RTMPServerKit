@@ -1,16 +1,16 @@
 import Foundation
 import Network
+import CoreImage
 import CoreMedia
-import CoreVideo
 
 /// The main RTMP server that listens on a TCP port.
 public final class RTMPServer {
     // MARK: - Public callbacks
 
-    /// Called on the main thread when a new video frame is ready.
-    /// The `CVPixelBuffer` and its associated `CMTime` (PTS) are already stable and
-    /// clock-paced by `FrameScheduler` — no further buffering or sorting is required.
-    public var onFrame: ((CVPixelBuffer, CMTime) -> Void)?
+    /// Called on the main thread when a new video frame is ready as a `CIImage`.
+    /// Frames are already stable and clock-paced by `FrameScheduler` — no further
+    /// buffering or sorting is required.
+    public var onCIImage: ((CIImage, CMTime) -> Void)?
 
     /// Called when a client starts publishing, with the stream key.
     public var onPublish: ((String) -> Void)?
@@ -72,10 +72,10 @@ public final class RTMPServer {
         let id = UUID()
         let conn = RTMPConnection(connection: nwConnection, id: id)
 
-        conn.onFrame = { [weak self] pixelBuffer, pts in
+        conn.onCIImage = { [weak self] ciImage, pts in
             guard let self else { return }
             // FrameScheduler already delivers on the main thread.
-            self.onFrame?(pixelBuffer, pts)
+            self.onCIImage?(ciImage, pts)
         }
 
         conn.onPublish = { [weak self] key in
